@@ -64,7 +64,7 @@ This role has been tested against the following distributions and Ansible versio
 |fedora-27|yes|yes|yes|
 |opensuse-42.2|yes|yes|yes|
 |opensuse-42.3|yes|yes|yes|
-|ubuntu-artful|yes|yes|yes|
+|ubuntu-bionic|yes|yes|yes|
 |ubuntu-trusty|yes|yes|yes|
 |ubuntu-xenial|yes|yes|yes|
 
@@ -79,7 +79,7 @@ Example Playbook
   become: yes
 
   roles:
-    - robertdebock.bootstrap
+    - role: robertdebock.bootstrap
       bootstrap_user: vagrant
 
   tasks:
