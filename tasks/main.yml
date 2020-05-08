@@ -1,32 +1,9 @@
 ---
 # tasks file for bootstrap
-- name: register apk
-  raw: apk --version
-  register: apk
-  changed_when: no
-  failed_when: no
-  become: no
-  check_mode: no
 
 - name: register apt_get
   raw: apt-get --version
   register: apt_get
-  changed_when: no
-  failed_when: no
-  become: no
-  check_mode: no
-
-- name: register dnf
-  raw: dnf --version
-  register: dnf
-  changed_when: no
-  failed_when: no
-  become: no
-  check_mode: no
-
-- name: register pacman
-  raw: pacman --version
-  register: pacman
   changed_when: no
   failed_when: no
   become: no
@@ -40,90 +17,48 @@
   become: no
   check_mode: no
 
-- name: register zypper
-  raw: zypper --version
-  register: zypper
-  changed_when: no
-  failed_when: no
-  become: no
-  check_mode: no
-
-- name: install software with apk
-  raw: apk update ; apk add python sudo
-  when:
-    - apk.rc == 0
-  register: apkresult
-  changed_when:
-    - "'Installing python' in apkresult.stdout"
-  remote_user: "{{ bootstrap_user }}"
-  become: yes
-
 - name: install software with apt-get
   raw: apt-get update ; apt-get -y install python sudo
+  become: yes
   when:
     - apt_get.rc == 0
-    - zypper.rc != 0
   register: apt_getresult
   changed_when:
     - "' 0 newly installed' not in apt_getresult.stdout"
   remote_user: "{{ bootstrap_user }}"
-  become: yes
-
-- name: install software with dnf
-  raw: dnf -y install python2 python2-dnf sudo
-  when:
-    - dnf.rc == 0
-  register: dnfresult
-  changed_when:
-    - "'Nothing' not in dnfresult.stdout"
-  remote_user: "{{ bootstrap_user }}"
-  become: yes
-
-- name: install software with pacman
-  raw: pacman -Syu ; pacman -T python sudo || pacman -S --noconfirm python sudo
-  when:
-    - pacman.rc == 0
-  register: pacmanresult
-  changed_when:
-    - "' installing python' in pacmanresult.stdout"
-  remote_user: "{{ bootstrap_user }}"
-  become: yes
+  until: apt_getresult is succeeded
+  retries: 3
 
 - name: install software with yum
   raw: yum -y install python2 sudo
+  become: yes
   when:
     - yum.rc == 0
   register: yumresult
   changed_when:
     - "'Nothing' not in yumresult.stdout"
   remote_user: "{{ bootstrap_user }}"
-  become: yes
-
-- name: install software with zypper
-  raw: zypper -n install python python-xml sudo
-  when:
-    - zypper.rc == 0
-  register: zypperresult
-  changed_when:
-    - "'Nothing' not in zypperresult.stdout"
-  remote_user: "{{ bootstrap_user }}"
-  failed_when: no
-  become: yes
+  until: yumresult is succeeded
+  retries: 3
 
 - name: gather facts
   setup:
   become: no
 
 - name: install software to support stable modules
+  become: yes
   package:
     name: "{{ item }}"
   with_items:
     - "{{ bootstrap_packages['stable'][ansible_distribution ~ '-' ~ ansible_distribution_major_version]
       | default(bootstrap_packages['stable'][ansible_distribution]
       | default(bootstrap_packages['stable']['default'] )) }}"
-  become: yes
+  register: packagestableresult
+  until: packagestableresult is succeeded
+  retries: 3
 
 - name: install software to support preview modules
+  become: yes
   package:
     name: "{{ item }}"
   with_items:
@@ -132,7 +67,9 @@
       | default(bootstrap_packages['preview']['default'] )) }}"
   when:
     - bootstrap_preview
-  become: yes
+  register: packagepreviewresult
+  until: packagepreviewresult is succeeded
+  retries: 3
 
 - name: gather facts after installation of packages
   setup:

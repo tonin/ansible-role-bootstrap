@@ -2,12 +2,6 @@
 # vars file for bootstrap
 bootstrap_packages:
   stable:
-    Alpine:
-      - ca-certificates
-      - py-simplejson
-      - shadow
-    Archlinux:
-      - python
     CentOS-6:
       - libselinux-python
       - libsemanage-python
@@ -28,9 +22,6 @@ bootstrap_packages:
       - python-devel
       - python-simplejson
       - python2-dnf
-    openSUSE Leap:
-      - ca-certificates
-      - python-selinux
     Ubuntu:
       - ca-certificates
       - python-apt

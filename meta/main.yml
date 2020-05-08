@@ -7,12 +7,6 @@ galaxy_info:
   min_ansible_version: 2.3
 
   platforms:
-    - name: Alpine
-      versions:
-        - all
-    - name: ArchLinux
-      version:
-        - all
     - name: CentOS
       version:
         - 6
@@ -25,9 +19,6 @@ galaxy_info:
         - 6
         - 7
     - name: Fedora
-      versions:
-        - all
-    - name: OpenSUSE
       versions:
         - all
     - name: Ubuntu
@@ -47,7 +38,6 @@ galaxy_info:
     - RHEL
     - EL
     - Debian
-    - Alpine
     - Ubuntu
     - system
     - installer
